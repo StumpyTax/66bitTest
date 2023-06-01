@@ -2,10 +2,12 @@
   <div class="products">
     <div v-for="item in products" :key="item.id" class="product-item">
       <div class="product">
-        <div class="product__img">
+      <div class="product__img">
+        <router-link :to="`/product/${item.id}`" >
           <img :src="item.image" alt="" class="product__image">
+        </router-link>
         </div>
-        <div class="product__title">{{ item.title }}</div>
+        <div class="product__title"><strong>{{ item.title }}</strong></div>
         <div class="product__price">{{ item.price }}$</div>
         <div class="product__btns">
           <div v-if="!item.favorite"  class="btn-wrapper">

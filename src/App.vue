@@ -34,11 +34,18 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: space-between;
   top: 0;
   bottom: 0;
   left: 0;
-  height: fit-content;
+  height: 100vh;
   min-width: 100%;
+}
+.footer{
+  width: 100%;
+  height: 50px;
+  background: #000;
+  margin-top: 30px;
 }
 .header{
   background-image: linear-gradient(90deg,#320ce6,#4954f0 5.23%,#2584d7 13.75%,#314993 24.69%,#304ce1 38.26%,#5a39b5 57.41%,#2e59ac 67.13%,#639fec 79.01%,#82a2ee 91.92%,#1ae2e9);
@@ -243,6 +250,11 @@ template {
   }
   .continer{
     max-width:700px
+  }
+}
+@media(max-width:490px){
+  #app{
+    height:fit-content;
   }
 }
 @media (max-width:416px) {
