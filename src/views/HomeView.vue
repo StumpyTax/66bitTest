@@ -50,7 +50,7 @@ export default defineComponent({
   },
   methods: {
     
-    async getProducts() {
+    async getProducts():Promise<void> {
       try {
         const response = await axios.get<IProduct[]>("https://fakestoreapi.com/products");
         if (response.status == 200) {

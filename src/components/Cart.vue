@@ -72,11 +72,11 @@ export default defineComponent({
       });
       return res;
     },
-    removeFromCart(item: IProduct) {
+    removeFromCart(item: IProduct):void{
       this.chosenProducts.delete(item.id);
       document.cookie = 'chosenProducts=' + JSON.stringify(Array.from(this.chosenProducts.entries()));
     },
-    setCount(id: number, newCount: number) {
+    setCount(id: number, newCount: number):void {
       if (newCount > 0) {
         this.chosenProducts.set(id, newCount);
       }

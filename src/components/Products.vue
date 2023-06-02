@@ -79,9 +79,8 @@ export default defineComponent({
       this.setCookies();
     },
 
-    setCookies() {
+    setCookies():void {
       document.cookie = 'chosenProducts=' + JSON.stringify(Array.from(this.chosenProducts.entries()));
-      console.log(document.cookie)
     }
   },
 });

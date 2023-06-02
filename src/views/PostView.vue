@@ -68,7 +68,7 @@ import { defineComponent } from "vue";
     }
   },
   methods:{
-    async getProducts() {
+    async getProducts():Promise<void> {
       try {
         const response = await axios.get<IProduct[]>("https://fakestoreapi.com/products");
         if (response.status == 200) {
@@ -82,7 +82,7 @@ import { defineComponent } from "vue";
         console.log(e);
       }
     },
-    addToCart(item: IProduct) {
+    addToCart(item: IProduct):void {
       var temp: number | undefined = this.chosenProducts.get(item.id)
       if (typeof temp != 'undefined') {
         this.chosenProducts.set(item.id, temp + 1);
@@ -92,21 +92,20 @@ import { defineComponent } from "vue";
       }
       this.setCookies();
     },
-    saveFav() {
+    saveFav():void {
       const parsed = JSON.stringify(this.favoriteProducts);
       localStorage.setItem('favoriteProducts', parsed);
     },
 
-    setCookies() {
+    setCookies():void {
       document.cookie = 'chosenProducts=' + JSON.stringify(Array.from(this.chosenProducts.entries()));
-      console.log(document.cookie)
     },
-    addFavorite(item: IProduct) {
+    addFavorite(item: IProduct):void {
       item.favorite = true;
       this.favoriteProducts.push(item.id);
       this.saveFav();
     },
-    removeFav(item: IProduct) {
+    removeFav(item: IProduct):void {
 
       this.favoriteProducts.splice(this.favoriteProducts.findIndex(x => x == item.id), 1);
       item.favorite = false;
