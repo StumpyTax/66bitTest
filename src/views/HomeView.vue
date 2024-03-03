@@ -1,19 +1,13 @@
 <template>
-  <div class="home">
-    <Cart :products="products" :chosenProducts="chosenProducts" />
-    <div class="home__filters">
-
-      <Categories v-model="chosenCategory" />
-      <div>
-        <input id="fav" type="checkbox" @click="showFavorite = !showFavorite">
-        <label for="fav"> Показать избранное</label>
-      </div>
-      <input type="text" v-model="filter" class="input" placeholder="Что ищем?" />
-    </div>
-    <div v-if="products.length != 0">
-      <Products :chosenProducts="chosenProducts" :favoriteProducts="favoriteProducts"
-        :products="filtredProducts.slice((activePage - 1) * limit, (activePage - 1) * limit + limit)" class="products" />
-      <Pagination @ChangeActive="ChangeActiveHandler" :activePage="activePage" :pagesCount="pagesCount"/>
+  <div class="updPlayer off">
+  <FormComp id="upd" @reqMethod="updPlayer" name="upd" class="updPlayer__form"></FormComp>
+</div>
+  <div class="home" :key="forceRenderKey">
+    <AddPlayer></AddPlayer>
+    <div v-if="players.length != 0" class="players-list">
+      <Players 
+        :players="players.slice((activePage - 1) * limit, (activePage - 1) * limit + limit)"  />
+      <Pagination @ChangeActive="ChangeActiveHandler" :activePage="activePage" :pagesCount="pagesCount" />
 
     </div>
     <div v-else class="loader">
@@ -23,48 +17,74 @@
 </template>
 
 <script lang="ts">
-import { IProduct } from "@/interfaces/IProduct";
+import { IPlayer } from "@/interfaces/IPlayer";
 import { defineComponent } from 'vue';
 import axios from 'axios';
-import Categories from '@/components/Categories.vue';
-import Products from '@/components/Products.vue';
-import Cart from '@/components/Cart.vue';
+import Players from '@/components/Players.vue';
 import Pagination from "@/components/Pagination.vue";
 import Loader from "@/components/Loader.vue";
+import AddPlayer from "@/components/AddPlayer.vue";
+import FormComp from "@/components/FormComp.vue";
 
 export default defineComponent({
   components: {
-    Products,
-    Categories,
-    Cart,
+    Players,
     Pagination,
-    Loader
+    AddPlayer,
+    Loader,
+    FormComp
 },
   data() {
     return {
-      products: [] as IProduct[],
-      chosenCategory: "All",
-      filter: "",
-      favoriteProducts: [] as number[],
-      showFavorite: false,
-      chosenProducts: new Map<number, number>(),
+      players: [] as IPlayer[],
       activePage: 1,
-      limit: 10
+      limit: 15,
+      forceRenderKey:0
     }
   },
   methods: {
+    forceReload(){
+      this.forceRenderKey++;
+    },
     ChangeActiveHandler(newActive:number){
       this.activePage=newActive;
     },
+    async updPlayer(){
+      const form=document.querySelector('form');
+      if(form==null)
+        return;
+      const formData=new FormData(form);
+        let player:any={};
+        const id:Number=Number(JSON.parse(document.cookie.split("id=")[1]));
+      if (document.cookie.includes("id=")) 
+          player["id"]=id;
+        formData.forEach((value, key)=> {
+          if(key=="gender" || key=="country")
+            player[key]=Number(value);
+          else player[key]=value;
+        });
+        try{
+          console.log(player);
+        const resp=await axios.put("http://localhost:5219/Player/Update",player);
+        if(resp.status==200){
+          alert("Игрок Обновлен!");
+        let index=this.players.findIndex(x=>x.id==id);
+        this.players[index]=player;
+        form.reset();
+        this.forceReload();
+      }  
+      }
+        catch(e:unknown){
+          console.log(e);
+        }
+        form.parentElement?.classList.replace("on","off");
+    },
     async getProducts(): Promise<void> {
       try {
-        const response = await axios.get<IProduct[]>("https://fakestoreapi.com/products");
+        const response = await axios.get<IPlayer[]>("http://localhost:5219/Player/GetAll");
         if (response.status == 200) {
-          this.products = response.data
-          this.products.map(x => {
-            if (this.favoriteProducts.includes(x.id))
-              x.favorite = true;
-          });
+          this.players = response.data;
+          console.log(this.players);
         }
       }
       catch (e: unknown) {
@@ -72,42 +92,58 @@ export default defineComponent({
       }
     },
   },
+
   mounted() {
     this.getProducts();
-    if (localStorage.getItem('favoriteProducts')) {
-      try {
-        this.favoriteProducts = JSON.parse(localStorage.getItem('favoriteProducts') as string);
-      } catch (e) {
-        localStorage.removeItem('favoriteProducts');
+    const upd=document.querySelector(".updPlayer");
+    upd?.addEventListener("click",(e)=>{
+      let event=<Element>e.target;
+      if(upd?.classList.contains("on") && !event.closest(".updPlayer__form")){
+        upd.classList.replace("on","off");
+        
       }
-    }
-    if (document.cookie.includes("chosenProducts=")) {
-      this.chosenProducts = new Map<number, number>(JSON.parse(document.cookie.split("chosenProducts=")[1]));
-      console.log(document.cookie);
-    }
+    });
+
   },
   computed: {
-    filtredProducts(): IProduct[] {
-      return this.products.filter(x => {
-        this.activePage=1;
-        return (x.title.toLowerCase().includes(this.filter.toLowerCase()) ||
-          x.description.toLowerCase().includes(this.filter.toLowerCase())) && (x.category == this.chosenCategory || this.chosenCategory == "All")
-          && ((this.showFavorite && x.favorite) || !this.showFavorite)
-      });
-    },
+    
     pagesCount(): number {
-      return Math.ceil(this.filtredProducts.length / 10);
+      return Math.ceil(this.players.length / this.limit);
     }
   }
 });
 </script>
 <style>
-
-
-.input {
-  border-radius: 5px;
-
+.on{
+  display: block;
 }
+.off{
+  display: none;
+}
+.updPlayer{
+  position: absolute;
+  background: rgba(100, 99, 99, 0.623);
+  z-index: 1;
+  transform: translate(-17.5%,-16.1%);
+  width: 100%;
+  height: 100%;
+}
+.updPlayer__form{
+  position: relative;
+  background-color: white;
+  top:25%;
+  left:40%;
+  width: fit-content;
+  height: fit-content;
+  padding: 20px;
+}
+.players-list{
+  display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 100%;
+}
+
 .loader{
   margin: 0 auto;
 }

@@ -7,9 +7,7 @@
   <div class="continer">
     <router-view />
   </div>
-  <footer class="footer">
-    ``
-  </footer>
+
 </template>
 
 <style>
@@ -23,6 +21,7 @@
 .home {
   display: flex;
   width: 100%;
+  height: 95%;
 }
 
 .continer {
@@ -90,7 +89,9 @@ body {
 main {
   display: block;
 }
-
+a{
+  text-decoration: none;
+}
 
 h1 {
   font-size: 2em;
