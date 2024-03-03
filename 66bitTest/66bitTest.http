@@ -1,0 +1,11 @@
+@_66bitTest_HostAddress = http://localhost:5219
+
+GET {{_66bitTest_HostAddress}}/PlayerController/Add
+Accept: application/json
+
+###
+
+GET {{_66bitTest_HostAddress}}
+Accept: application/json
+
+###
